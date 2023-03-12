@@ -38,7 +38,8 @@ DOCKER_REGISTRY ?= ""
 DOCKER_IMAGE_PREFIX ?= openwhisk
 DOCKER_IMAGE_TAG ?= nightly
 OPENWHISK_VERSION ?= master
-OPENWHISK_PROJECT_HOME ?= $(CURDIR)/openwhisk-src
+#OPENWHISK_PROJECT_HOME ?= $(CURDIR)/openwhisk-src
+OPENWHISK_PROJECT_HOME ?= /home/kingdo/IdeaProjects/openwhisk
 OPENWHISK_CATALOG_HOME ?= $(CURDIR)/openwhisk-catalog
 WSK_CLI ?= $(OPENWHISK_PROJECT_HOME)/bin/wsk
 WSK_CLI_VERSION ?= latest
@@ -279,6 +280,14 @@ restart: stop rm start-docker-compose
 
 .PHONY: restart-controller
 restart-controller:
+	echo "building the OpenWhisk controller jar... "
+	cd $(OPENWHISK_PROJECT_HOME) && \
+		./gradlew :core:controller:build
+
+	echo "building the OpenWhisk controller docker images ... "
+	cd $(OPENWHISK_PROJECT_HOME) && \
+		./gradlew :core:controller:distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) -PdockerImageTag=${DOCKER_IMAGE_TAG}
+
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop controller
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f controller
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk up controller 2>&1 >> $(TMP_HOME)/tmp/openwhisk/docker-compose.log &
@@ -287,6 +296,14 @@ restart-controller:
 
 .PHONY: restart-invoker
 restart-invoker:
+	echo "building the OpenWhisk invoker jar... "
+	cd $(OPENWHISK_PROJECT_HOME) && \
+	./gradlew :core:invoker:build
+
+	echo "building the OpenWhisk invoker docker images ... "
+	cd $(OPENWHISK_PROJECT_HOME) && \
+		./gradlew :core:invoker:distDocker -PdockerImagePrefix=$(DOCKER_IMAGE_PREFIX) -PdockerImageTag=${DOCKER_IMAGE_TAG}
+
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk stop invoker
 	$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk rm -f invoker
 	echo "waiting for the invoker to be marked 'down' ... "
@@ -304,7 +321,7 @@ wait-for-docker-compose-up:
 	echo "Waiting till all containers are powered up... ";
 	sleep 1;
 	@trycount=0; \
-	trycounttimeout=60; \
+	trycounttimeout=120; \
 	up=`$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose --project-name openwhisk ps | grep Up -c`; \
 	servicescount=`$(shell cat $(TMP_HOME)/tmp/openwhisk/local.env) docker-compose -f $(DOCKER_COMPOSE_FILE) config --services | wc -l | xargs`; \
 	docker_ps() { \
