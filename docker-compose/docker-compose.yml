@@ -203,14 +203,14 @@ services:
       - zookeeper
       - kafka
 
-  kafka-topics-ui:
-      image: landoop/kafka-topics-ui:0.9.3
-      environment:
-        - KAFKA_REST_PROXY_URL=http://kafka-rest:8082
-        - KAFKA_REST_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
-        - PROXY=true
-      ports:
-        - 8001:8000
-      links:
-        - kafka
-        - kafka-rest
+#  kafka-topics-ui:
+#      image: landoop/kafka-topics-ui:0.9.3
+#      environment:
+#        - KAFKA_REST_PROXY_URL=http://kafka-rest:8082
+#        - KAFKA_REST_BOOTSTRAP_SERVERS=PLAINTEXT://kafka:9092
+#        - PROXY=true
+#      ports:
+#        - 8001:8000
+#      links:
+#        - kafka
+#        - kafka-rest
