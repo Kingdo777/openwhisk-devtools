@@ -20,6 +20,9 @@ services:
     image: kingdo/state-function-manager
     container_name: state-function-manager
     restart: always
+    depends_on:
+      - controller
+      - invoker
     ports:
       - "7070:7070"
     environment:
